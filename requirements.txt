@@ -1,6 +1,5 @@
 streamlit==1.23.1
 pandas==1.5.3
-pillow==9.5.0
 matplotlib==3.7.1
 networkx==2.8.8
 numpy==1.26.0
