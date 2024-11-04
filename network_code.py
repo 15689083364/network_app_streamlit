@@ -30,25 +30,8 @@ group_id = int(st.text_input('请输入要查询的团体id', '7'))
 @st.cache_data
 def load_data():
     try:
-        # 使用 openpyxl 逐行读取 Excel 文件
-        author_info = []
-        data_use = []
-
-        # 读取作者明细文件
-        workbook_author_info = openpyxl.load_workbook('作者明细-包含团体id.xlsx', read_only=True)
-        sheet_author_info = workbook_author_info.active
-        for row in sheet_author_info.iter_rows(values_only=True):
-            author_info.append(row)
-
-        # 读取作者网络明细文件
-        workbook_data_use = openpyxl.load_workbook('作者网络明细回查表11.1.xlsx', read_only=True)
-        sheet_data_use = workbook_data_use.active
-        for row in sheet_data_use.iter_rows(values_only=True):
-            data_use.append(row)
-
-        # 将列表转换为 DataFrame
-        author_info_df = pd.DataFrame(author_info[1:], columns=author_info[0])
-        data_use_df = pd.DataFrame(data_use[1:], columns=data_use[0])
+        author_info_df = pd.read_feather('作者明细-包含团体id.fth')
+        data_use_df = pd.read_feather('作者网络明细回查表11.1.fth')
 
     except FileNotFoundError as e:
         st.error(f"文件未找到: {e}")
@@ -56,9 +39,6 @@ def load_data():
     return author_info_df, data_use_df
 
 author_info, data_use = load_data()
-
-import gc
-gc.collect()
 
 # 释放不再需要的内存
 # 构建8个网络图
