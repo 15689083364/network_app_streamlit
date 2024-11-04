@@ -4,18 +4,24 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+import openpyxl
 from matplotlib.gridspec import GridSpec
 from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
 # 使用 subprocess 调用 jupyter nbconvert 命令
+plt.rcParams['font.sans-serif'] = ['Arial Unicode MS', 'Apple Color Emoji']
+
+# 设置 Matplotlib 字体
+plt.rcParams['font.sans-serif'] = ['Arial Unicode MS', 'Apple Color Emoji']
+
+# 转换 Jupyter Notebook 到 Python 脚本
+# 转换 Jupyter Notebook 到 Python 脚本
 def convert_notebook_to_python(notebook_path, output_path):
     try:
         result = subprocess.run(['jupyter', 'nbconvert', '--to', 'python', notebook_path, '--output', output_path], check=True, capture_output=True, text=True)
         st.write(f"Conversion successful: {result.stdout}")
     except subprocess.CalledProcessError as e:
         st.error(f"Conversion failed: {e.stderr}")
-
-plt.rcParams['font.sans-serif'] = ['Arial Unicode MS', 'Apple Color Emoji']
 
 st.title('团体明细网络图生成器')
 
@@ -24,13 +30,37 @@ group_id = int(st.text_input('请输入要查询的团体id', '7'))
 @st.cache_data
 def load_data():
     try:
-        author_info = pd.read_excel('作者明细-包含团体id.xlsx')
-        data_use = pd.read_excel('作者网络明细回查表11.1.xlsx')
+        # 使用 openpyxl 逐行读取 Excel 文件
+        author_info = []
+        data_use = []
+
+        # 读取作者明细文件
+        workbook_author_info = openpyxl.load_workbook('作者明细-包含团体id.xlsx', read_only=True)
+        sheet_author_info = workbook_author_info.active
+        for row in sheet_author_info.iter_rows(values_only=True):
+            author_info.append(row)
+
+        # 读取作者网络明细文件
+        workbook_data_use = openpyxl.load_workbook('作者网络明细回查表11.1.xlsx', read_only=True)
+        sheet_data_use = workbook_data_use.active
+        for row in sheet_data_use.iter_rows(values_only=True):
+            data_use.append(row)
+
+        # 将列表转换为 DataFrame
+        author_info_df = pd.DataFrame(author_info[1:], columns=author_info[0])
+        data_use_df = pd.DataFrame(data_use[1:], columns=data_use[0])
+
     except FileNotFoundError as e:
         st.error(f"文件未找到: {e}")
         st.stop()
-    return author_info, data_use
+    return author_info_df, data_use_df
+
 author_info, data_use = load_data()
+
+import gc
+gc.collect()
+
+# 释放不再需要的内存
 # 构建8个网络图
 @st.cache_data
 def graph_take(index_name):
