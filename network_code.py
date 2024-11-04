@@ -21,14 +21,18 @@ st.title('团体明细网络图生成器')
 
 group_id = int(st.text_input('请输入要查询的团体id', '7'))
 
-try:
-    author_info = pd.read_excel('作者明细-包含团体id.xlsx')
-    data_use = pd.read_excel('作者网络明细回查表11.1.xlsx')
-except FileNotFoundError as e:
-    st.error(f"文件未找到: {e}")
-    st.stop()
-
+@st.cache_data
+def load_data():
+    try:
+        author_info = pd.read_excel('作者明细-包含团体id.xlsx')
+        data_use = pd.read_excel('作者网络明细回查表11.1.xlsx')
+    except FileNotFoundError as e:
+        st.error(f"文件未找到: {e}")
+        st.stop()
+    return author_info, data_use
+author_info, data_use = load_data()
 # 构建8个网络图
+@st.cache_data
 def graph_take(index_name):
     index_list = list(set(data_use['t1.source_user_id'].tolist() + data_use['t1.target_user_id'].tolist()))
     all_nodes = index_list
@@ -43,19 +47,21 @@ def graph_take(index_name):
     temp_data = (temp_data + temp_data.T) / 2
     G_temp = nx.from_pandas_adjacency(temp_data, create_using=nx.Graph)
     return G_temp
+@st.cache_data 
+def generate_graph():
+    G_all = graph_take('average_cnt')
+    G_live_cnt = graph_take('live_cnt')
+    G_comment_cnt = graph_take('comment_cnt')
+    G_live_play_cnt = graph_take('live_play_cnt')
+    G_send_message_cnt = graph_take('send_message_cnt')
+    G_co_relation_num = graph_take('co_relation_num')
+    G_comments_at_author = graph_take('comments_at_author')
+    G_common_hard_fans_cnt = graph_take('common_hard_fans_cnt')
+    return G_all, G_live_cnt, G_comment_cnt, G_live_play_cnt, G_send_message_cnt, G_co_relation_num, G_comments_at_author, G_common_hard_fans_cnt
 
-G_all = graph_take('average_cnt')
-G_live_cnt = graph_take('live_cnt')
-G_comment_cnt = graph_take('comment_cnt')
-G_live_play_cnt = graph_take('live_play_cnt')
-G_send_message_cnt = graph_take('send_message_cnt')
-G_co_relation_num = graph_take('co_relation_num')
-G_comments_at_author = graph_take('comments_at_author')
-G_common_hard_fans_cnt = graph_take('common_hard_fans_cnt')
-
+G_all, G_live_cnt, G_comment_cnt, G_live_play_cnt, G_send_message_cnt, G_co_relation_num, G_comments_at_author, G_common_hard_fans_cnt = generate_graph()
 # 获取节点数据，根据用户输入的团体id
 node_df = author_info[author_info['group'] == group_id][['作者id', '作者昵称']]
-
 # 绘制局部网络图
 def plot_local_group_graph(G, node_df, title, edge_width_scale=1.0, figsize=(15, 10)):
     node_ids = list(node_df['作者id'])
@@ -123,14 +129,6 @@ selected_graph = st.selectbox('请选择要绘制的关系网', list(graph_optio
 if st.button('生成关系网络图'):
     st.write(f'Generating chart for group ID: {group_id} and graph: {selected_graph}')
     plot_local_group_graph(graph_options[selected_graph], node_df, selected_graph, edge_width_scale=0.2)
-# 询问用户是否继续绘制其他图，重新运行一遍代码，看一下这个点能不能优化运行效率。
-if st.button('继续绘制其他图'):
-    st.rerun()
-
-if st.button('更换团体ID'):
-    st.rerun()
-
-
 def data_info(group_id,selected_graph, data_use, author_info):
     node_df = author_info[author_info['group'] == group_id][['作者id']]
     temp_data = data_use[(data_use['t1.source_user_id'].isin(node_df['作者id'].tolist()))|(data_use['t1.target_user_id'].isin(node_df['作者id'].tolist()))]
