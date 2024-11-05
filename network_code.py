@@ -12,7 +12,7 @@ from matplotlib.font_manager import FontProperties
 import pickle
 import os
 plt.rcParams['font.sans-serif']=['Heiti Tc'] # 使用黑体
-plt.rcParams['axes.unicode minus']= False # 正确显示负号
+plt.rcParams['axes.unicode_minus']= False # 正确显示负号
 st.title('团体明细网络图生成器')
 group_id = int(st.text_input('请输入要查询的团体id', '7'))
 ## 缓存数据
@@ -95,7 +95,7 @@ def plot_local_group_graph(G, node_df, title, edge_width_scale=1.0, figsize=(15,
         spine.set_linewidth(1)
 
     plt.rcParams['font.sans-serif']=['Heiti Tc'] # 使用黑体
-    plt.rcParams['axes.unicode minus']= False # 正确显示负号
+    plt.rcParams['axes.unicode_minus']= False # 正确显示负号
     plt.colorbar(mappable, ax=ax, label='边权重大小')
     st.pyplot(fig)
 
