@@ -11,8 +11,16 @@ from matplotlib.cm import ScalarMappable
 from matplotlib.font_manager import FontProperties
 import pickle
 import os
-plt.rcParams['font.sans-serif']=['Heiti Tc'] # 使用黑体
-plt.rcParams['axes.unicode_minus']= False # 正确显示负号
+# 指定字体文件路径
+font_path = 'SimHei.ttc'
+
+# 创建字体属性对象
+font = FontProperties(fname=font_path)
+
+# 设置 Matplotlib 的默认字体
+plt.rcParams['font.family'] = font.get_name()
+plt.rcParams['font.sans-serif'] = [font.get_name()]
+plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
 st.title('团体明细网络图生成器')
 group_id = int(st.text_input('请输入要查询的团体id', '7'))
 ## 缓存数据
@@ -94,9 +102,9 @@ def plot_local_group_graph(G, node_df, title, edge_width_scale=1.0, figsize=(15,
         spine.set_color('black')
         spine.set_linewidth(1)
 
-    plt.rcParams['font.sans-serif']=['Heiti Tc'] # 使用黑体
-    plt.rcParams['axes.unicode_minus']= False # 正确显示负号
-    plt.colorbar(mappable, ax=ax, label='边权重大小')
+    plt.rcParams['font.family'] = font.get_name()
+    plt.rcParams['font.sans-serif'] = [font.get_name()]
+    plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
     st.pyplot(fig)
 
 # 图表选项
