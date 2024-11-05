@@ -8,6 +8,7 @@ import openpyxl
 from matplotlib.gridspec import GridSpec
 from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
+from matplotlib.font_manager import FontProperties
 import pickle
 import os
 plt.rcParams['font.sans-serif'] =  ['Heiti TC']
