@@ -8,25 +8,13 @@ import openpyxl
 from matplotlib.gridspec import GridSpec
 from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
-# 使用 subprocess 调用 jupyter nbconvert 命令
+import pickle
+import os
+## 界面布局
 plt.rcParams['font.sans-serif'] = ['Arial Unicode MS', 'Apple Color Emoji']
-
-# 设置 Matplotlib 字体
-plt.rcParams['font.sans-serif'] = ['Arial Unicode MS', 'Apple Color Emoji']
-
-# 转换 Jupyter Notebook 到 Python 脚本
-# 转换 Jupyter Notebook 到 Python 脚本
-def convert_notebook_to_python(notebook_path, output_path):
-    try:
-        result = subprocess.run(['jupyter', 'nbconvert', '--to', 'python', notebook_path, '--output', output_path], check=True, capture_output=True, text=True)
-        st.write(f"Conversion successful: {result.stdout}")
-    except subprocess.CalledProcessError as e:
-        st.error(f"Conversion failed: {e.stderr}")
-
 st.title('团体明细网络图生成器')
-
 group_id = int(st.text_input('请输入要查询的团体id', '7'))
-
+## 缓存数据
 @st.cache_data
 def load_data():
     try:
@@ -39,37 +27,26 @@ def load_data():
     return author_info_df, data_use_df
 
 author_info, data_use = load_data()
-
-# 释放不再需要的内存
-# 构建8个网络图
 @st.cache_data
-def graph_take(index_name):
-    index_list = list(set(data_use['t1.source_user_id'].tolist() + data_use['t1.target_user_id'].tolist()))
-    all_nodes = index_list
-    temp_data = pd.pivot_table(
-        data_use, 
-        index='t1.source_user_id', 
-        columns='t1.target_user_id', 
-        values=index_name, 
-        fill_value=0, 
-        aggfunc=np.sum
-    ).reindex(index=all_nodes, columns=all_nodes, fill_value=0)
-    temp_data = (temp_data + temp_data.T) / 2
-    G_temp = nx.from_pandas_adjacency(temp_data, create_using=nx.Graph)
-    return G_temp
-@st.cache_data 
-def generate_graph():
-    G_all = graph_take('average_cnt')
-    G_live_cnt = graph_take('live_cnt')
-    G_comment_cnt = graph_take('comment_cnt')
-    G_live_play_cnt = graph_take('live_play_cnt')
-    G_send_message_cnt = graph_take('send_message_cnt')
-    G_co_relation_num = graph_take('co_relation_num')
-    G_comments_at_author = graph_take('comments_at_author')
-    G_common_hard_fans_cnt = graph_take('common_hard_fans_cnt')
+def load_graph():
+    with open('average_cnt.gpickle','rb') as f:
+        G_all = pickle.load(f)
+    with open('live_cnt.gpickle','rb') as f:
+        G_live_cnt = pickle.load(f)
+    with open('comment_cnt.gpickle','rb') as f:
+        G_comment_cnt = pickle.load(f)
+    with open('live_play_cnt.gpickle','rb') as f:
+        G_live_play_cnt = pickle.load(f)
+    with open('send_message_cnt.gpickle','rb') as f:
+        G_send_message_cnt = pickle.load(f)
+    with open('co_relation_num.gpickle','rb') as f:
+        G_co_relation_num = pickle.load(f)
+    with open('comments_at_author.gpickle','rb') as f:
+        G_comments_at_author = pickle.load(f)
+    with open('common_hard_fans_cnt.gpickle','rb') as f:
+        G_common_hard_fans_cnt = pickle.load(f)
     return G_all, G_live_cnt, G_comment_cnt, G_live_play_cnt, G_send_message_cnt, G_co_relation_num, G_comments_at_author, G_common_hard_fans_cnt
-
-G_all, G_live_cnt, G_comment_cnt, G_live_play_cnt, G_send_message_cnt, G_co_relation_num, G_comments_at_author, G_common_hard_fans_cnt = generate_graph()
+G_all, G_live_cnt, G_comment_cnt, G_live_play_cnt, G_send_message_cnt, G_co_relation_num, G_comments_at_author, G_common_hard_fans_cnt = load_graph()
 # 获取节点数据，根据用户输入的团体id
 node_df = author_info[author_info['group'] == group_id][['作者id', '作者昵称']]
 # 绘制局部网络图
@@ -165,7 +142,7 @@ def data_info(group_id,selected_graph, data_use, author_info):
                                'source_author_fans_user_num','target_author_fans_user_num','live_play_cnt']]
         temp_data.rename(columns={'t1.source_user_id':'作者id_1','t1.target_user_id':'作者id_2','source_author_name':'作者1昵称',
                                  'target_author_name':'作者2昵称','source_author_fans_user_num':'作者1粉丝量',
-                                  'target_author_fans_user_num':'作者2粉丝量','live_play_cnt':'综合指标互动值'}, inplace=True)
+                                  'target_author_fans_user_num':'作者2粉丝量','live_play_cnt':'直播互相观看次数'}, inplace=True)
     elif selected_graph == '私信关系网':
         temp_data = temp_data[['t1.source_user_id','t1.target_user_id','source_author_name','target_author_name',
                                'source_author_fans_user_num','target_author_fans_user_num','send_message_cnt']]
@@ -177,19 +154,19 @@ def data_info(group_id,selected_graph, data_use, author_info):
                                'source_author_fans_user_num','target_author_fans_user_num','co_relation_num']]
         temp_data.rename(columns={'t1.source_user_id':'作者id_1','t1.target_user_id':'作者id_2','source_author_name':'作者1昵称',
                                  'target_author_name':'作者2昵称','source_author_fans_user_num':'作者1粉丝量',
-                                  'target_author_fans_user_num':'作者2粉丝量','co_relation_num':'私信互动数'}, inplace=True)
+                                  'target_author_fans_user_num':'作者2粉丝量','co_relation_num':'共创&标题艾特数'}, inplace=True)
     elif selected_graph == '用户相互艾特作者关系网':
         temp_data = temp_data[['t1.source_user_id','t1.target_user_id','source_author_name','target_author_name',
                                'source_author_fans_user_num','target_author_fans_user_num','comments_at_author']]
         temp_data.rename(columns={'t1.source_user_id':'作者id_1','t1.target_user_id':'作者id_2','source_author_name':'作者1昵称',
                                  'target_author_name':'作者2昵称','source_author_fans_user_num':'作者1粉丝量',
-                                  'target_author_fans_user_num':'作者2粉丝量','comments_at_author':'私信互动数'}, inplace=True)
+                                  'target_author_fans_user_num':'作者2粉丝量','comments_at_author':'用户相互艾特数'}, inplace=True)
     elif selected_graph == '共同铁粉关系网':
         temp_data = temp_data[['t1.source_user_id','t1.target_user_id','source_author_name','target_author_name',
                                'source_author_fans_user_num','target_author_fans_user_num','common_hard_fans_cnt']]
         temp_data.rename(columns={'t1.source_user_id':'作者id_1','t1.target_user_id':'作者id_2','source_author_name':'作者1昵称',
                                  'target_author_name':'作者2昵称','source_author_fans_user_num':'作者1粉丝量',
-                                  'target_author_fans_user_num':'作者2粉丝量','common_hard_fans_cnt':'私信互动数'}, inplace=True)
+                                  'target_author_fans_user_num':'作者2粉丝量','common_hard_fans_cnt':'共同铁粉数'}, inplace=True)
     return temp_data 
 temp_data = data_info(group_id, selected_graph, data_use, author_info)
 temp_data
