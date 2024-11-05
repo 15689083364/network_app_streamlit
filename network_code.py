@@ -13,7 +13,8 @@ import pickle
 import os
 import matplotlib as mpl
 # 设置 Matplotlib 的默认字体
-mpl.font_manager.fontManager.addfont(['Arial Unicode MS.ttf', 'Apple Color Emoji.ttf']) 
+mpl.font_manager.fontManager.addfont('Arial Unicode MS.ttf')
+mpl.font_manager.fontManager.addfont('Apple Color Emoji.ttf')
 plt.rcParams['font.sans-serif']=['Arial Unicode MS.ttf', 'Apple Color Emoji.ttf'] #用来正常显示中文标签
 plt.rcParams['axes.unicode_minus']=False#用来正常显示负号
 st.title('团体明细网络图生成器')
