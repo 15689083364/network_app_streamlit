@@ -12,7 +12,7 @@ from matplotlib.font_manager import FontProperties
 import pickle
 import os
 # 指定字体文件路径
-font_path = 'SimHei.ttc'
+font_path = 'SimHei.ttf'
 
 # 创建字体属性对象
 font = FontProperties(fname=font_path)
