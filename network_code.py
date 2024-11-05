@@ -10,9 +10,9 @@ from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
 import pickle
 import os
-matplotlib.rcParams['font.sans-serif'] =  ['Heiti TC']
-matplotlib.rcParams['font.serif'] =  ['Heiti TC']
-matplotlib.rcParams['axes.unicode_minus'] = False
+plt.rcParams['font.sans-serif'] =  ['Heiti TC']
+plt.rcParams['font.serif'] =  ['Heiti TC']
+plt.rcParams['axes.unicode_minus'] = False
 st.title('团体明细网络图生成器')
 group_id = int(st.text_input('请输入要查询的团体id', '7'))
 ## 缓存数据
@@ -94,9 +94,9 @@ def plot_local_group_graph(G, node_df, title, edge_width_scale=1.0, figsize=(15,
         spine.set_color('black')
         spine.set_linewidth(1)
 
-    matplotlib.rcParams['font.sans-serif'] =  ['Heiti TC']
-    matplotlib.rcParams['font.serif'] =  ['Heiti TC']
-    matplotlib.rcParams['axes.unicode_minus'] = False
+    plt.rcParams['font.sans-serif'] =  ['Heiti TC']
+    plt.rcParams['font.serif'] =  ['Heiti TC']
+    plt.rcParams['axes.unicode_minus'] = False
     plt.colorbar(mappable, ax=ax, label='边权重大小')
     st.pyplot(fig)
 
