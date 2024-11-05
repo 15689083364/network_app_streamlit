@@ -24,7 +24,7 @@ group_id = int(st.text_input('请输入要查询的团体id', '7'))
 def load_data():
     try:
         author_info_df = pd.read_feather('作者明细-包含团体id.fth')
-        data_use_df = pd.read_feather('作者网络明细回查表11.1.fth')
+        data_use_df = pd.read_feather('作者网络明细回查表11.2.fth')
 
     except FileNotFoundError as e:
         st.error(f"文件未找到: {e}")
