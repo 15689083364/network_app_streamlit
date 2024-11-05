@@ -100,6 +100,7 @@ def plot_local_group_graph(G, node_df, title, edge_width_scale=1.0, figsize=(15,
 
     plt.rcParams['font.sans-serif']=['Arial Unicode MS', 'Apple Color Emoji'] #用来正常显示中文标签
     plt.rcParams['axes.unicode_minus']=False#用来正常显示负号
+    plt.colorbar(mappable, ax=ax, label='边权重大小')
     st.pyplot(fig)
 
 # 图表选项
