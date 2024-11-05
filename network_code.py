@@ -124,7 +124,7 @@ if st.button('生成关系网络图'):
     plot_local_group_graph(graph_options[selected_graph], node_df, selected_graph, edge_width_scale=0.2)
 def data_info(group_id,selected_graph, data_use, author_info):
     node_df = author_info[author_info['group'] == group_id][['作者id']]
-    temp_data = data_use[(data_use['t1.source_user_id'].isin(node_df['作者id'].tolist()))|(data_use['t1.target_user_id'].isin(node_df['作者id'].tolist()))]
+    temp_data = data_use[(data_use['t1.source_user_id'].isin(node_df['作者id'].tolist()))&(data_use['t1.target_user_id'].isin(node_df['作者id'].tolist()))]
     if selected_graph == '综合指标关系网':
         temp_data = temp_data[['t1.source_user_id','t1.target_user_id','source_author_name','target_author_name',
                                'source_author_fans_user_num','target_author_fans_user_num','average_cnt']]
@@ -133,34 +133,44 @@ def data_info(group_id,selected_graph, data_use, author_info):
                                   'target_author_fans_user_num':'作者2粉丝量','average_cnt':'综合指标互动次数'}, inplace=True)
     elif selected_graph == '直播互动关系网':
         temp_data = temp_data[['t1.source_user_id','t1.target_user_id','source_author_name','target_author_name',
-                               'source_author_fans_user_num','target_author_fans_user_num','live_cnt']]
+                               'source_author_fans_user_num','target_author_fans_user_num','live_cnt',
+                              'live_cnt_contribute']]
         temp_data.rename(columns={'t1.source_user_id':'作者id_1','t1.target_user_id':'作者id_2','source_author_name':'作者1昵称',
                                  'target_author_name':'作者2昵称','source_author_fans_user_num':'作者1粉丝量',
-                                  'target_author_fans_user_num':'作者2粉丝量','live_cnt':'直播互动次数'}, inplace=True)
+                                  'target_author_fans_user_num':'作者2粉丝量','live_cnt':'直播互动次数',
+                                  'live_cnt_contribute':'直播互动贡献度'}, inplace=True)
     elif selected_graph == '视频评论关系网':
         temp_data = temp_data[['t1.source_user_id','t1.target_user_id','source_author_name','target_author_name',
-                               'source_author_fans_user_num','target_author_fans_user_num','comment_cnt']]
+                               'source_author_fans_user_num','target_author_fans_user_num','comment_cnt',
+                              'comment_cnt_contribute']]
         temp_data.rename(columns={'t1.source_user_id':'作者id_1','t1.target_user_id':'作者id_2','source_author_name':'作者1昵称',
                                  'target_author_name':'作者2昵称','source_author_fans_user_num':'作者1粉丝量',
-                                  'target_author_fans_user_num':'作者2粉丝量','comment_cnt':'视频相互评论次数'}, inplace=True)
+                                  'target_author_fans_user_num':'作者2粉丝量','comment_cnt':'视频相互评论次数',
+                                 'comment_cnt_contribute':'视频互动贡献度'}, inplace=True)
     elif selected_graph == '直播互相观看关系网':
         temp_data = temp_data[['t1.source_user_id','t1.target_user_id','source_author_name','target_author_name',
-                               'source_author_fans_user_num','target_author_fans_user_num','live_play_cnt']]
+                               'source_author_fans_user_num','target_author_fans_user_num','live_play_cnt',
+                               'live_play_cnt_contribute']]
         temp_data.rename(columns={'t1.source_user_id':'作者id_1','t1.target_user_id':'作者id_2','source_author_name':'作者1昵称',
                                  'target_author_name':'作者2昵称','source_author_fans_user_num':'作者1粉丝量',
-                                  'target_author_fans_user_num':'作者2粉丝量','live_play_cnt':'直播互相观看次数'}, inplace=True)
+                                  'target_author_fans_user_num':'作者2粉丝量','live_play_cnt':'直播互相观看次数',
+                                 'live_play_cnt_contribute':'直播观看贡献度'}, inplace=True)
     elif selected_graph == '私信关系网':
         temp_data = temp_data[['t1.source_user_id','t1.target_user_id','source_author_name','target_author_name',
-                               'source_author_fans_user_num','target_author_fans_user_num','send_message_cnt']]
+                               'source_author_fans_user_num','target_author_fans_user_num','send_message_cnt',
+                              'send_message_cnt_contribute']]
         temp_data.rename(columns={'t1.source_user_id':'作者id_1','t1.target_user_id':'作者id_2','source_author_name':'作者1昵称',
                                  'target_author_name':'作者2昵称','source_author_fans_user_num':'作者1粉丝量',
-                                  'target_author_fans_user_num':'作者2粉丝量','send_message_cnt':'私信互动数'}, inplace=True)
+                                  'target_author_fans_user_num':'作者2粉丝量','send_message_cnt':'私信互动数',
+                                 'send_message_cnt_contribute':'私信互动贡献度'}, inplace=True)
     elif selected_graph == '共创&作品艾特关系网':
         temp_data = temp_data[['t1.source_user_id','t1.target_user_id','source_author_name','target_author_name',
-                               'source_author_fans_user_num','target_author_fans_user_num','co_relation_num']]
+                               'source_author_fans_user_num','target_author_fans_user_num','co_relation_num',
+                              'co_relation_contribute']]
         temp_data.rename(columns={'t1.source_user_id':'作者id_1','t1.target_user_id':'作者id_2','source_author_name':'作者1昵称',
                                  'target_author_name':'作者2昵称','source_author_fans_user_num':'作者1粉丝量',
-                                  'target_author_fans_user_num':'作者2粉丝量','co_relation_num':'共创&标题艾特数'}, inplace=True)
+                                  'target_author_fans_user_num':'作者2粉丝量','co_relation_num':'共创&标题艾特数',
+                                 'co_relation_contribute':'作品共创&标题艾特贡献度'}, inplace=True)
     elif selected_graph == '用户相互艾特作者关系网':
         temp_data = temp_data[['t1.source_user_id','t1.target_user_id','source_author_name','target_author_name',
                                'source_author_fans_user_num','target_author_fans_user_num','comments_at_author']]
