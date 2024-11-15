@@ -18,7 +18,7 @@ mpl.font_manager.fontManager.addfont('Apple Color Emoji.ttf')
 plt.rcParams['font.sans-serif']=['Arial Unicode MS', 'Apple Color Emoji'] #用来正常显示中文标签
 plt.rcParams['axes.unicode_minus']=False#用来正常显示负号
 st.title('团体明细网络图生成器')
-group_id = int(st.text_input('请输入要查询的团体id', '7'))
+group_id = int(st.text_input('请输入要查询的团体id', '2523'))
 ## 缓存数据
 @st.cache_data
 def load_data():
